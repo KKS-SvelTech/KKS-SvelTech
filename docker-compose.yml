@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+    ## service for db
+    db:
+      image: postgres
+      restart: always
+      environment:
+        - POSTGRES_DB=${DB_NAME}
+        - POSTGRES_USER=${DB_USER}
+        - POSTGRES_PASSWORD=${DB_PASSWORD}
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+
+    ## service for django project
+    userservice:
+      command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+      build: .
+      volumes:
+      - .:/sveltetech
+      env_file:
+        - ./gauralife/.env
+      ports:
+        - "8000:8000"
+      depends_on:
+        - db
+
+volumes:
+  postgres_data:
